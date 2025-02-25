@@ -11,7 +11,7 @@ mkdir(output_path, remove_old = T)
 
 # load data
 dm = readRDS(dm_path)
-dm@meta.data$orig.ident <- "WT"
+dm@meta.data$orig.ident <- "WT" 
 obj_split <- SplitObject(dm, split.by = "orig.ident")
 
 
