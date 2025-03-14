@@ -34,7 +34,7 @@ We propose two application scenarios for MINERVA:
    # OR
    CUDA_VISIBLE_DEVICES=0 python run.py --task bmmc --experiment mask --pretext mask noise downsample fusion &
    ```
-   This produces trained model states saved at each specified epoch. You can retrieve embeddings with the following command:
+   This produces trained model states saved at each specified epoch. You can obtain the joint low-dimensional representation, the intra- and inter-modality imputed expression profiles, and the batch-corrected matrix with the following commands:
    ```
    python run.py --task dm --experiment mask --init_model sp_latest --actions predict_all &
    ```
