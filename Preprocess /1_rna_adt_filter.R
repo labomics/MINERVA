@@ -4,8 +4,8 @@ source('utils.R')
 
 base_path <- "./data/processed"
 data_path <- "./Download_data/dura_mater"
-dm_path <- pj(data_path, "dm.rds")
-output_path <- pj(base_path, "dm./inputdata")
+dm_path <- pj(data_path, "dm_sub10.rds")
+output_path <- pj(base_path, "dm_sub10/inputdata")
 mkdir(output_path, remove_old = T)
 
 
