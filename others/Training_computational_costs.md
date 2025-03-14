@@ -1,4 +1,4 @@
-| Dataset | Sampling Ratio(%) | Training Cells Num |  SSL Task Number  |  Time(min)  |
+| Dataset | Sampling Ratio (%)| Training Cells Num |  SSL Task Number  |  Time (min) |
 | :-----: |       :---:       |       :----:       |       :----:      |    :----:   |
 |    DM   |         10        |         664        |         1         |     2.13    |
 |    DM   |         20        |        1,336       |         1         |     3.10    |
