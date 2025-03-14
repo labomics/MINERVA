@@ -19,7 +19,20 @@ MINERVA is a generalizable framework for single-cell data integration, designed 
 |Bone marrow<br>mononuclear cell<br>(BMMC)|   human   |  90,261  |     134     |     12      |   GSE194122    |10%: 5,893<br>20%: 17,840<br>50%: 29,975<br>100%: 60,155|
 |Immune cells across lineages and tissues<br>(IMC)|   human   |  190,877  |     268     |     15      |   GSE229791    |                           -                       |
  
-# Running MINERVA
+# Installation
+
+```
+# Create Environment
+conda create --name MINERVA python=3.8
+# Install Python Dependencies
+pip install -r requirements.txt
+# Install from GitHub
+git clone https://github.com/labomics/MINERVA.git
+```
+MINERVA is implemented in Pytorch framework.
+MINERVA should be run on GPU devices at current version.
+
+# Getting started
 For facilitate quick startup, we provide a demo for preprocessing. You can use a test data in Example_data folder.
 
 ## 1.Prepare Data
