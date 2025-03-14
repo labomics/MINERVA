@@ -10,18 +10,22 @@ MINERVA is a generalizable framework for single-cell data integration, designed 
 4. Remove batch effects across different datasets.
 5. Zero-shot knowledge transfer to unseen datasets without model retraining.
 6. Instant identify uncharacterized cell types.
-
+ 
 # Running MINERVA
+For facilitate quick startup, we provide a demo for preprocessing. You can use a test data in Example_data folder.
+
 ## 1.Prepare Data
 Conduct quality control on individual datasets and export the filtered data in **h5seurat** format for RNA and ADT modalities. Select variable features, generate corresponding expression matrices, and split them by cell for MINERVA input.  
-
-For facilitate quick startup, we provide a demo for preprocessing:    
+  
 ```
+# Qulity control
 Rscript Preprocess/1_rna_adt_filter.R &
+# Select ADT and Highly Variable Genes
 Rscript Preprocess/2_combine_subsets.R &
+# Construct Input Files for MINERVA
 python Preprocess/3_split_exp.py &
 ```
-For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices as needed for analysis.  
+For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices with 3_split_exp.py.  
 
 ## 2.Apply MINERVA
 We propose two application scenarios for MINERVA:
