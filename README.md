@@ -30,7 +30,7 @@ pip install -r requirements.txt
 git clone https://github.com/labomics/MINERVA.git
 ```
 MINERVA is implemented in Pytorch framework.
-MINERVA should be run on GPU devices at current version.
+<br>MINERVA should be run on GPU devices at current version.
 
 # Getting started
 For facilitate quick startup, we provide a demo for preprocessing. You can use a test data in Example_data folder.
