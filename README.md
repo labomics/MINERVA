@@ -50,7 +50,7 @@ For specific preprocessing needs, you may also choose Scanpy or Seurat. Once pre
 
 ## 2.Apply MINERVA
 We propose two application scenarios for MINERVA:
-### (1) De novo Integration  
+### (1) _De novo_ Integration  
    With prepared input data, execute the following script:
    ```
    CUDA_VISIBLE_DEVICES=0 python run.py --task dm --experiment mask --pretext mask &
