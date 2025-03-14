@@ -41,7 +41,7 @@ We propose two application scenarios for MINERVA:
 ### (2) Generalization to Novel Queries  
    Pre-trained model from **scenario 1** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning:
    ```
-   # Set up Reference Atlas
+   # Set up Large-scale Reference Atlas
    CUDA_VISIBLE_DEVICES=0 python run.py --task imc_ref --experiment all --pretext mask noise downsample fusion --use_shm 2 &
 
    # Perform Knowledge Transfer
