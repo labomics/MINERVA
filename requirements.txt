@@ -8,5 +8,12 @@ R (4.1.0) software:
 scuttle (v1.4.0)
 Seurat (v4.3.0)
 Signac (v1.9.0)
-StabMap (v0.1.8)
 Monocle 3 (v1.3.7)
+
+Compared methods:
+Multigrate (v0.0.2)
+scVAEIT (https://github.com/jaydu1/scVAEIT/tree/21541e58d97694abd9148963962024e4d8c2b997)
+scArches (v0.5.1)
+totalVI (https://github.com/scverse/scvi-tools/tree/main/src/scvi/model)
+StabMap (v0.1.8)
+MIDAS (https://github.com/labomics/midas/tree/main/src/scmidas)
