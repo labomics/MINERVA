@@ -14,10 +14,10 @@ MINERVA is a generalizable framework for single-cell data integration, designed 
 # Training Data
 |             Dataset           |  Species  | Sample: Cell num  |  Protein num  |  Batch num  |  Accession ID  |     Sample ratio: cell num for de novo training   |
 |             :-----:           |   :---:   |      :----        |    :----:     |    :----:   |    :----:      |                       :----                       |
-|    Mouse CD45- dura mater<br>(DM)    |   mouse   |      **6,697**    |      168      |      1      |   GSE191075    |10%: 664<br>20%: 1,336<br>50%: 3,346<br>100%: 6,697|
-|    Spleen and lymph nodes<br>(SLN)   |   mouse   |     **29,338**    |SLN111:111<br>SLN208:208|      4      |   GSE150599    |10%: 2,339<br>20%: 4,678<br>50%: 11,731<br>100%: 23,470|
-|Bone marrow<br>mononuclear cell<br>(BMMC)|   human   |**90,261**|     134     |     12      |   GSE194122    |10%: 5,893<br>20%: 17,840<br>50%: 29,975<br>100%: 60,155|
-|Immune cells across lineages and tissues<br>(IMC)|   human   |**190,877**|     268     |     15      |   GSE229791    |                           -                       |
+|    Mouse CD45- dura mater<br>(DM)    |   mouse   |      6,697    |      168      |      1      |   GSE191075    |10%: 664<br>20%: 1,336<br>50%: 3,346<br>100%: 6,697|
+|    Spleen and lymph nodes<br>(SLN)   |   mouse   |     29,338    |SLN111:111<br>SLN208:208|      4      |   GSE150599    |10%: 2,339<br>20%: 4,678<br>50%: 11,731<br>100%: 23,470|
+|Bone marrow<br>mononuclear cell<br>(BMMC)|   human   |  90,261  |     134     |     12      |   GSE194122    |10%: 5,893<br>20%: 17,840<br>50%: 29,975<br>100%: 60,155|
+|Immune cells across lineages and tissues<br>(IMC)|   human   |  190,877  |     268     |     15      |   GSE229791    |                           -                       |
  
 # Running MINERVA
 For facilitate quick startup, we provide a demo for preprocessing. You can use a test data in Example_data folder.
