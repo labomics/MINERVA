@@ -12,7 +12,7 @@ MINERVA is a generalizable framework for single-cell data integration, designed 
 6. Instant identify uncharacterized cell types.
 
 # Training Data
-|             Dataset           |  Species  | Sample: Cell num  |  Protein num  |  Batch num  |  Accession ID  |     Sample ratio: cell num for de novo training   |
+|             Dataset           |  Species  | Sample: Cell num  |  Protein num  |  Batch num  |  Accession ID  |     Sample ratio: cell num for _de novo_ training   |
 |             :-----:           |   :---:   |      :----:       |    :----:     |    :----:   |    :----:      |                       :----                       |
 |    Mouse CD45- dura mater<br>(DM)    |   mouse   |      6,697    |      168      |      1      |   GSE191075    |10%: 664<br>20%: 1,336<br>50%: 3,346<br>100%: 6,697|
 |    Spleen and lymph nodes<br>(SLN)   |   mouse   |     29,338    |SLN111:111<br>SLN208:208|      4      |   GSE150599    |10%: 2,339<br>20%: 4,678<br>50%: 11,731<br>100%: 23,470|
