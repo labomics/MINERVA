@@ -1,12 +1,21 @@
+Hardware:
+We trained MINERVA on a Linux server with 36 CPU cores, 248GB of RAM, and an NVIDIA Tesla V100S GPU.
+
 Python (3.8.8) software:
 PyTorch (v2.0.0)
 Scanpy (v1.9.8)
 scIB (v1.0.2)
 scikit-learn (v1.1.1)
+numpy (v1.24.4)
 
 R (4.1.0) software:
 scuttle (v1.4.0)
 Seurat (v4.3.0)
+SeuratDisk (v0.0.0.9019)
+dplyr (v1.1.2)
+Matrix (v1.5.4)
+stringr (v1.5.0)
+purrr (v1.0.1)
 Signac (v1.9.0)
 Monocle 3 (v1.3.7)
 
