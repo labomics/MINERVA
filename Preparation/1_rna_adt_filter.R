@@ -12,7 +12,7 @@ Description:
 
 Arguments:
   filename     data filename (Required).
-  name         experiment name (Required).
+  task         experiment name (Required).
 
 Example:
   Rscript Preparation/1_rna_adt_filter.R dm_sub10_demo.rds dm_sub10
@@ -25,13 +25,13 @@ if (length(args) >= 1) {
   filename <- args[1]
 }
 if (length(args) >= 2) {
-  name <- args[2]
+  task <- args[2]
 }
 
 base_path <- "./result/preprocess"
 data_path <- "./Example_data/"
 dm_path <- pj(data_path, filename)
-output_path <- pj(base_path, "/",name,"/inputdata")
+output_path <- pj(base_path, "/",task,"/inputdata")
 mkdir(output_path, remove_old = T)
 
 
