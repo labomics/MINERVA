@@ -38,7 +38,7 @@ cd MINERVA
 ```
 
 # Getting started
-For facilitate quick startup, we provide a demo for preprocessing. You can choose test data in Example_data folder.
+For facilitate quick startup, we provide a demo for preprocessing. You can choose test data in **Example_data** folder.
 
 ## 1.Prepare Data
 Conduct quality control on individual datasets and export the filtered data in **h5seurat** format for RNA and ADT modalities. Select variable features, generate corresponding expression matrices, and split them by cell for MINERVA input.  
@@ -51,7 +51,7 @@ Rscript Preparation/2_combine_subsets.R &
 # Construct Input Files for MINERVA
 python Preparation/3_split_exp.py &
 ```
-For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices with 3_split_exp.py.  
+For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices with **3_split_exp.py**.  
 
 ## 2.Apply MINERVA
 We propose two application scenarios for MINERVA:
@@ -68,6 +68,10 @@ We propose two application scenarios for MINERVA:
    ```
    python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict_all &
    ```
+   The multimodal integration outputs are systematically stored in a hierarchical directory structure following the pattern, such as: _dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}_.<br>
+   <br>
+   The integrated performance was subsequently assessed using the **3.Evaluate Performance** framework.
+   <br>
 ### (2) Generalization to Novel Queries  
    Pre-trained model from **scenario 1** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning:
    ```
