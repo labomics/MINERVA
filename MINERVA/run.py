@@ -1,3 +1,4 @@
+
 import os
 from os import path
 from os.path import join as pj
@@ -378,18 +379,20 @@ def run_epoch(data_loader, split, epoch_id=0):
     epoch_time = (time.time() - start_time) / 3600 / 24
     elapsed_time = epoch_time * (epoch_id+1)
     total_time = epoch_time * o.epoch_num
-    print('%s\t%s\tepoch: %d/%d\t%s_loss: %.2f\t[raw_loss: %.2f, disc: %.2f]\ttime: %.2f/%.2f'.expandtabs(3) % 
-          (o.task, o.experiment, epoch_id+1, o.epoch_num, split, loss_avg, raw_loss_avg, -loss_adv, elapsed_time, total_time))
-    for k in ['raw', 'mask', 'noise', 'downsample', 'fusion']:
-        if k in sum_losses["loss_recon"].keys():
-            if k != "fusion":
-                # print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f, mod:%.3f'.expandtabs(3) %
-                    # (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item(), sum_losses["loss_mod"][k].item()))
-                print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f'.expandtabs(3) %
-                    (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item()))
-            else:
-                print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f, SEM:%.3f'.expandtabs(3) %
-                        (k, sum_losses["loss_recon"][k].item(), sum_losses["loss_kld_z"][k].item(), sum_losses["loss_SEM"][k].item()))
+    
+    if (epoch_id+1) % 10 == 0:
+        print('%s\t%s\tepoch: %d/%d\t%s_loss: %.2f\t[raw_loss: %.2f, disc: %.2f]\ttime: %.2f/%.2f'.expandtabs(3) % 
+              (o.task, o.experiment, epoch_id+1, o.epoch_num, split, loss_avg, raw_loss_avg, -loss_adv, elapsed_time, total_time))
+        for k in ['raw', 'mask', 'noise', 'downsample', 'fusion']:
+            if k in sum_losses["loss_recon"].keys():
+                if k != "fusion":
+                    # print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f, mod:%.3f'.expandtabs(3) %
+                        # (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item(), sum_losses["loss_mod"][k].item()))
+                    print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f'.expandtabs(3) %
+                        (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item()))
+                else:
+                    print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f, SEM:%.3f'.expandtabs(3) %
+                            (k, sum_losses["loss_recon"][k].item(), sum_losses["loss_kld_z"][k].item(), sum_losses["loss_SEM"][k].item()))
     benchmark[split+'_loss'].append((float(epoch_id), float(loss_avg)))
     return loss_avg
 
@@ -401,33 +404,7 @@ def run_iter(split, epoch_id, iter_id, inputs):
 
         if skip:
             return np.nan
-        else:
-            if "mask" in o.pretext:
-                # mask feature 
-                inputs["mask"] = copy.deepcopy(inputs["raw"])
-
-                for m in inputs["raw"].keys():
-                    inputs["mask"][m] = utils.feature_mask(inputs["mask"][m], o.mask_ratio)
-
-                # mask omics
-                inputs_temp = copy.deepcopy(inputs)
-                inputs_temp["mask"] = utils.modality_mask(inputs_temp["mask"])
-                inputs = inputs_temp
-
-            if "noise" in o.pretext:
-                # add noise
-                inputs["noise"] = copy.deepcopy(inputs["raw"])
-
-                for m in inputs["raw"].keys():
-                    inputs["noise"][m] = utils.random_noise(inputs["noise"][m])
-            
-            if "downsample" in o.pretext:
-                # downsample
-                inputs["downsample"] = copy.deepcopy(inputs["raw"])
-
-                for m in inputs["raw"].keys():
-                    inputs["downsample"][m] = utils.downsample(inputs["downsample"][m])
-            
+        else:            
             if "fusion" in o.pretext:
                 # fusion
                 alpha = th.tensor([1.0, 1.0])
