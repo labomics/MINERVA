@@ -46,11 +46,11 @@ Conduct quality control on individual datasets and export the filtered data in *
 ```
 # Qulity control
 Rscript Preparation/1_rna_adt_filter.R dm_sub10_demo.rds dm_sub10 &
-Rscript Preparation/1_rna_adt_filter.R sln_sub10_demo.rds sln_sub10 &
+Rscript Preparation/1_rna_adt_filter.R sln_sub10_train.rds sln_sub10_transfer &
 # Select ADT and Highly Variable Genes
-Rscript Preparation/2_combine_subsets.R &
+Rscript Preparation/2_combine_subsets.R dm_sub10 &
 # Construct Input Files for MINERVA
-python Preparation/3_split_exp.py &
+python Preparation/3_split_exp.py --task dm_sub10 &
 ```
 For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices with **3_split_exp.py**.  
 
