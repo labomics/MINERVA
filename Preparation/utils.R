@@ -6,7 +6,6 @@ library(dplyr)
 library(Matrix)
 library(purrr)
 library(stringr)
-library(GenomicRanges)
 library(RcppTOML)
 set.seed(1234)
 
