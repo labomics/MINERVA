@@ -3,7 +3,7 @@ import sys
 from os.path import join as pj
 from glob import glob
 sys.path.append(os.path.abspath('./MINERVA'))
-from model import utils
+from modules import utils
 
 
 task = "dm_sub10"
