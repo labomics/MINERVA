@@ -376,18 +376,13 @@ def run_epoch(data_loader, split, epoch_id=0):
 
     loss_avg = np.nanmean(losses)
     raw_loss_avg = np.nanmean(raw_losses)
-    epoch_time = (time.time() - start_time) / 3600 / 24
-    elapsed_time = epoch_time * (epoch_id+1)
-    total_time = epoch_time * o.epoch_num
     
     if (epoch_id+1) % 10 == 0:
-        print('%s\t%s\tepoch: %d/%d\t%s_loss: %.2f\t[raw_loss: %.2f, disc: %.2f]\ttime: %.2f/%.2f'.expandtabs(3) % 
-              (o.task, o.experiment, epoch_id+1, o.epoch_num, split, loss_avg, raw_loss_avg, -loss_adv, elapsed_time, total_time))
+        print('%s\t%s\tepoch: %d/%d\t%s_loss: %.2f\t[raw_loss: %.2f, disc: %.2f]'.expandtabs(3) % 
+              (o.task, o.experiment, epoch_id+1, o.epoch_num, split, loss_avg, raw_loss_avg, -loss_adv))
         for k in ['raw', 'mask', 'noise', 'downsample', 'fusion']:
             if k in sum_losses["loss_recon"].keys():
                 if k != "fusion":
-                    # print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f, mod:%.3f'.expandtabs(3) %
-                        # (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item(), sum_losses["loss_mod"][k].item()))
                     print('\t\t=> %s last minibatch - recon:%.3f, kld:%.3f'.expandtabs(3) %
                         (k, sum_losses["loss_recon"][k].item(),sum_losses["loss_kld_z"][k].item()))
                 else:
@@ -404,7 +399,8 @@ def run_iter(split, epoch_id, iter_id, inputs):
 
         if skip:
             return np.nan
-        else:            
+        else:
+            
             if "fusion" in o.pretext:
                 # fusion
                 alpha = th.tensor([1.0, 1.0])
