@@ -8,8 +8,8 @@ import pandas as pd
 
 # %%
 parser = argparse.ArgumentParser()
-parser.add_argument('--task', type=str, default='sln_sub100')
-parser.add_argument('--experiment', type=str, default='null')
+parser.add_argument('--task', type=str, default='dm_sub10')
+parser.add_argument('--experiment', type=str, default='e0')
 parser.add_argument('--model', type=str, default='default')
 parser.add_argument('--method', type=str, default='embed')
 o, _ = parser.parse_known_args()  # for python interactive
