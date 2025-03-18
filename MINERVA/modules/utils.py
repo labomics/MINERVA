@@ -18,10 +18,13 @@ from tqdm import tqdm
 import re
 import random
 import math
+from torch.distributions.dirichlet import Dirichlet
 
 from rpy2.robjects import r, StrVector, ListVector, numpy2ri
 numpy2ri.activate()
 r('library(scuttle)')
+
+# IO
 
 def save_json(data, filename):
     with open(filename, 'w') as f:
@@ -509,7 +512,7 @@ def load_predicted(o, joint_latent=True, mod_latent=False, impute=False, batch_c
                    translate=False, input=False, group_by="modality"):
     print("Loading predicted variables ...")
     dirs = get_pred_dirs(o, joint_latent, mod_latent, impute, batch_correct, translate, input)
-    print(dirs)
+    # print(dirs)
     data = {}
     for subset_id in dirs.keys():
         data[subset_id] = {"s": {}}
@@ -583,6 +586,7 @@ def get_pred_dirs(o, joint_latent, mod_latent, impute, batch_correct, translate,
             for m in o.combs[subset_id]: # single to double
                 for m_ in set(o.mods) - {m}:
                     dirs[subset_id]["x_trans"][m+"_to_"+m_] = pj(subset_dir, "x_trans", m+"_to_"+m_)
+
         if input:
             dirs[subset_id]["x"] = {}
             # dirs[subset_id]["x_noise"] = {}
@@ -597,8 +601,8 @@ def get_pred_dirs(o, joint_latent, mod_latent, impute, batch_correct, translate,
 def gen_data_config(task, reference=''):
     if "continual" in task:
         assert reference != '', "Reference must be specified!"
-        data_config = load_toml("configs/data.toml")[re.sub("_continual", "", task)]
-        data_config_ref = load_toml("configs/data.toml")[reference]
+        data_config = load_toml("./MINERVA/configs/data.toml")[re.sub("_continual", "", task)]
+        data_config_ref = load_toml("./MINERVA/configs/data.toml")[reference]
         data_config["raw_data_dirs"] += data_config_ref["raw_data_dirs"]
         data_config["raw_data_frags"] += data_config_ref["raw_data_frags"]
         data_config["combs"] += data_config_ref["combs"]
@@ -606,7 +610,7 @@ def gen_data_config(task, reference=''):
         data_config["s_joint"] += [[v[0]+len(data_config["s_joint"])] for v in data_config_ref["s_joint"]]
     else:
         cfg_task = re.sub("_vd.*|_vt.*|_atlas|_generalize|_transfer|_ref_.*", "", task)
-        data_config = load_toml("configs/data.toml")[cfg_task]
+        data_config = load_toml("./MINERVA/configs/data.toml")[cfg_task]
     return data_config
 
 
@@ -624,18 +628,26 @@ def sum_nested_dict_values(nested_dict):
     return total
 
 
-def random_mask(input, mask_ratio):
+def feature_mask(input, mask_ratio):
 
     new_tensor = th.ones_like(input)
     for i in range(input.size(0)):
-        masked_percentage = np.random.uniform(0, mask_ratio)
-        num_zeros = int(masked_percentage * input.size(1))
-        # 随机选择要置为0的位置
+        F_masked_percentage = np.random.uniform(0, mask_ratio)
+        num_zeros = int(F_masked_percentage * input.size(1))
+
         zero_indices = random.sample(range(input.size(1)), num_zeros)
-        # 在新张量中将选定位置为0
         new_tensor[i, zero_indices] = 0
     input = input * new_tensor
     
+    return input
+
+
+def modality_mask(input):
+    M_masked_percentage = np.random.uniform(0, 1)
+    if M_masked_percentage < 1/(len(input.keys()) + 1):
+        del input[list(input.keys())[0]]
+    elif 1/(len(input.keys()) + 1) < M_masked_percentage < 2/(len(input.keys()) + 1):
+        del input[list(input.keys())[1]]
     return input
 
 
@@ -681,6 +693,7 @@ def fusion_data(o, mode, base_indirs, train_ratio):
         all_files[b] = [str(b) + "_" + 
             path.basename(name) for name in flist[:math.ceil(len(flist) * train_ratio)]]
         file_num[b] = len(all_files[b])
+
         folder_names = [name for name in os.listdir(base_indirs[b])]
 
         if "rna" in folder_names:
