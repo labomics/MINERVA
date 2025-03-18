@@ -34,7 +34,6 @@ class MultimodalDataset(Dataset):
         self.o = o
         self.split = split
         self.pair_mix = pair_mix
-        # self.s_drop_rate = s_drop_rate if split == "train" else 0
         
         base_dir = pj(self.o.data_dir, "subset_"+str(subset))
         self.in_dirs = {}
