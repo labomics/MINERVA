@@ -45,7 +45,8 @@ Conduct quality control on individual datasets and export the filtered data in *
   
 ```
 # Qulity control
-Rscript Preparation/1_rna_adt_filter.R &
+Rscript Preparation/1_rna_adt_filter.R dm_sub10_demo.rds dm_sub10 &
+Rscript Preparation/1_rna_adt_filter.R sln_sub10_demo.rds sln_sub10 &
 # Select ADT and Highly Variable Genes
 Rscript Preparation/2_combine_subsets.R &
 # Construct Input Files for MINERVA
