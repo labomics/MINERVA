@@ -1,12 +1,13 @@
 import os
+import sys
 from os.path import join as pj
-from model import utils
 from glob import glob
-from tqdm import tqdm
+sys.path.append(os.path.abspath('./MINERVA'))
+from model import utils
 
 
-task = "dm"
-base_path = pj("./data/processed/", task)
+task = "dm_sub10"
+base_path = pj("./result/preprocess", task)
 base_dirs = glob(pj(base_path, "subset_*"))
 
 
@@ -32,9 +33,9 @@ for base_dir in base_dirs:
         out_mode_dir = pj(out_dir, mode)
         utils.mkdirs(out_mode_dir, remove_old=True)
         cell_name_fmt = utils.get_name_fmt(cell_num) + ".csv"
-        print(cell_name_fmt)
+
         cell_name_fmt = pj(out_mode_dir, cell_name_fmt)
-        for cell_id in tqdm(range(cell_num)):
+        for cell_id in range(cell_num):
             cell_name = cell_name_fmt % (cell_id + 1)
             utils.save_list_to_csv([exp[cell_id+1][1:]], cell_name)
         
