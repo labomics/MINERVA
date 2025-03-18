@@ -34,6 +34,7 @@ class MultimodalDataset(Dataset):
         self.o = o
         self.split = split
         self.pair_mix = pair_mix
+        # self.s_drop_rate = s_drop_rate if split == "train" else 0
         
         base_dir = pj(self.o.data_dir, "subset_"+str(subset))
         self.in_dirs = {}
@@ -79,19 +80,30 @@ class MultimodalDataset(Dataset):
         for m in self.comb:
             file_path = pj(self.in_dirs[m], self.filenames[index])
             v = np.array(utils.load_csv(file_path)[0])
-            if m == "label":
-                items["raw"][m] = v.astype(np.int64)
-            elif m == "atac":
-                items["raw"][m] = np.where(v.astype(np.float32) > 0.5, 1, 0).astype(np.float32)
-            else:
-                items["raw"][m] = v.astype(np.float32)
+            items["raw"][m] = v.astype(np.float32)
             if m in self.masks.keys():
                 items["e"][m] = self.masks[m]
 
             if self.split == "train":
-                tr = transformation(index, m, self.pair_filenames, self.pair_mix, self.o.data_dir)
-
+                tr = transformation(items["raw"][m], index, m, self.pair_filenames, self.pair_mix, self.o.data_dir)
+                
                 for t in self.o.pretext:
+
+                    if t == "mask":
+                        items[t][m] = tr.random_mask(self.o.mask_ratio)
+
+                    if t == "noise":
+                        items[t][m] = tr.random_gaussian_noise()
+
+                    if t == "subsample":
+                        matrix = robjects.r.matrix(np.array(items["raw"][m]))
+                        row_names = robjects.StrVector([str(i) for i in range(1, items["raw"][m].shape[0] + 1)])
+                        col_names = robjects.StrVector(["1"])
+                        setattr(matrix, 'dimnames', robjects.ListVector({'x': row_names, 'y': col_names}))
+                        downsampled = robjects.r['downsampleMatrix'](matrix, prop = random.random() * 0.5)
+                        downsampled_array = np.array(robjects.r.matrix(downsampled)).flatten().tolist()
+                        items[t][m] = th.from_numpy(np.array(downsampled_array, dtype = np.float32))
+
                     if t == "fusion":
                         items["mix_param"], items["mix1"][m], items["mix2"][m] = tr.mixup(m)
      
@@ -104,7 +116,9 @@ class MultimodalDataset(Dataset):
 
 class transformation():
 
-    def __init__(self, index, m, pair_filenames, pair_mix, data_dir):
+    def __init__(self, cell_profile, index, m, pair_filenames, pair_mix, data_dir):
+        self.cell_profile = copy.deepcopy(cell_profile)
+        self.gene_num = len(self.cell_profile)
         self.pair_filenames = pair_filenames
         self.pair_mix = pair_mix
         if self.pair_filenames is not None:
@@ -113,6 +127,42 @@ class transformation():
         self.data_dir = data_dir
         self.m = m
     
+    def build_mask(self, masked_percentage: float):
+
+        mask = np.concatenate([np.ones(int(self.gene_num * masked_percentage), dtype = bool), 
+                            np.zeros(self.gene_num - int(self.gene_num * masked_percentage), dtype = bool)])
+        np.random.shuffle(mask)
+
+        return mask
+    
+    def random_mask(self, mask_ratio):
+
+        self.cell_profile1 = copy.deepcopy(self.cell_profile)
+        # create the mask for mutation
+        mask = self.build_mask(np.random.uniform(0, mask_ratio))
+        # do the mutation with prob
+        self.cell_profile1[mask] = 0
+        
+        return self.cell_profile1
+
+
+    def random_gaussian_noise(self, noise_percentage: float = 1.0, sigma: float = 0.2):
+
+        self.cell_profile2 = copy.deepcopy(self.cell_profile)
+        noise_percentage = np.random.uniform(0, noise_percentage)
+        mask = self.build_mask(noise_percentage)
+
+        # create the noise
+        noise = np.random.normal(0, sigma, int(self.gene_num * noise_percentage))
+
+        # do the mutation
+        self.cell_profile2[mask] += noise
+        # self.cell_profile2 = th.where(self.cell_profile2 < 0., 0., self.cell_profile2)
+        self.cell_profile2[self.cell_profile2 < 0.] = 0.
+        # self.cell_profile2 = np.round(self.cell_profile2)
+
+        return self.cell_profile2
+
 
     def mixup(self, m):
         pair_path = self.pair_filenames[self.index]
@@ -188,4 +238,3 @@ class MultiDatasetSampler(th.utils.data.sampler.Sampler):
                 final_samples_list.extend(cur_samples)
 
         return iter(final_samples_list)
-        
