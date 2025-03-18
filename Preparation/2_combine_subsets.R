@@ -1,7 +1,29 @@
 source('./Preparation/utils.R')
+args <- commandArgs(trailingOnly = TRUE)
+
+if ("--help" %in% args || length(args) == 0) {
+  cat("
+Usage: Rscript 2_combine_subsets.R [param1]
+
+Description:
+  This script used for selecting ADT and highly variable genes
+
+Arguments:
+  name         experiment name (Required).
+
+Example:
+  Rscript Preparation/2_combine_subsets.R dm_sub10
+
+")
+  quit(status = 0)
+}
+
+if (length(args) >= 1) {
+  name <- args[1]
+}
 
 
-task <- "dm_sub10"
+task <- name
 data_path <- './Example_data/'
 dm_path <- pj(data_path, paste0(task, "_demo.rds"))
 
