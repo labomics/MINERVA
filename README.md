@@ -20,31 +20,36 @@ MINERVA is a generalizable framework for single-cell data integration, designed 
 |Immune cells across lineages and tissues<br>(IMC)|   human   |  190,877  |     268     |     15      |   GSE229791    |                           -                       |
  
 # Installation
+System: Linux Ubuntu 18.04
+Programming language:<br>
+- Python 3.8.8
+- R 4.1.0
+
+Main packages:
+- Pytorch 2.0.0
+- Seurat 4.3.0
 
 ```
 # Create Environment
-conda create --name MINERVA python=3.8
-# Install Python Dependencies
-pip install -r requirements.txt
+conda create --name MINERVA python=3.8.8
 # Install from GitHub
 git clone https://github.com/labomics/MINERVA.git
+cd MINERVA
 ```
-MINERVA is implemented in Pytorch framework.
-<br>MINERVA should be run on GPU devices at current version.
 
 # Getting started
-For facilitate quick startup, we provide a demo for preprocessing. You can use a test data in Example_data folder.
+For facilitate quick startup, we provide a demo for preprocessing. You can choose test data in Example_data folder.
 
 ## 1.Prepare Data
 Conduct quality control on individual datasets and export the filtered data in **h5seurat** format for RNA and ADT modalities. Select variable features, generate corresponding expression matrices, and split them by cell for MINERVA input.  
   
 ```
 # Qulity control
-Rscript Preprocess/1_rna_adt_filter.R &
+Rscript Preparation/1_rna_adt_filter.R &
 # Select ADT and Highly Variable Genes
-Rscript Preprocess/2_combine_subsets.R &
+Rscript Preparation/2_combine_subsets.R &
 # Construct Input Files for MINERVA
-python Preprocess/3_split_exp.py &
+python Preparation/3_split_exp.py &
 ```
 For specific preprocessing needs, you may also choose Scanpy or Seurat. Once preprocessing is complete, split the matrices with 3_split_exp.py.  
 
@@ -53,24 +58,24 @@ We propose two application scenarios for MINERVA:
 ### (1) _De novo_ Integration  
    With prepared input data, execute the following script:
    ```
-   CUDA_VISIBLE_DEVICES=0 python run.py --task dm --experiment mask --pretext mask &
+   CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task dm_sub10 --pretext mask &
    # OR
-   CUDA_VISIBLE_DEVICES=0 python run.py --task sln --experiment mask --pretext mask noise downsample &
+   CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task sln_sub10 --pretext mask noise downsample &
    # OR
-   CUDA_VISIBLE_DEVICES=0 python run.py --task bmmc --experiment mask --pretext mask noise downsample fusion &
+   CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task bmmc_sub10 --pretext mask noise downsample fusion &
    ```
    This produces trained model states saved at each specified epoch. You can obtain the joint low-dimensional representation, the intra- and inter-modality imputed expression profiles, and the batch-corrected matrix with the following commands:
    ```
-   python run.py --task dm --experiment mask --init_model sp_latest --actions predict_all &
+   python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict_all &
    ```
 ### (2) Generalization to Novel Queries  
    Pre-trained model from **scenario 1** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning:
    ```
    # Set up Large-scale Reference Atlas
-   CUDA_VISIBLE_DEVICES=0 python run.py --task imc_ref --experiment all --pretext mask noise downsample fusion --use_shm 2 &
+   CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task imc_ref --experiment all --pretext mask noise downsample fusion --use_shm 2 &
 
    # Perform Knowledge Transfer
-   python run.py --task imc_query --ref imc_ref --rf_experiment all --experiment all --init_model sp_latest --init_from_ref 1 --action predict_all --use_shm 3 &
+   python MINERVA/run.py --task imc_query --ref imc_ref --rf_experiment all --experiment all --init_model sp_latest --init_from_ref 1 --action predict_all --use_shm 3 &
    ```
    The output will be generated as in scenario 1 and can also be evaluated for generalizated performance.  
    
