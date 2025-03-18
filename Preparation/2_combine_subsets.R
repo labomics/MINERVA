@@ -1,9 +1,9 @@
-source('utils.R')
+source('./Preparation/utils.R')
 
 
-task <- "dm"
-data_path <- './Download_data/dura_mater'
-dm_path <- pj(data_path, paste0(task, ".rds"))
+task <- "dm_sub10"
+data_path <- './Example_data/'
+dm_path <- pj(data_path, paste0(task, "_demo.rds"))
 
 
 # load data
@@ -16,7 +16,7 @@ samples <- c('wt')
 modes <- c('rna', 'adt')
 
 
-output_path <- pj("./data/processed", task)
+output_path <- pj("./result/preprocess", task)
 print(output_path)
 input_dirs <- pj(output_path, "inputdata", samples, "seurat")
 output_feat_dir <- pj(output_path, "feat")
