@@ -9,7 +9,7 @@ Description:
   This script used for selecting ADT and highly variable genes
 
 Arguments:
-  name         experiment name (Required).
+  task         experiment name (Required).
 
 Example:
   Rscript Preparation/2_combine_subsets.R dm_sub10
@@ -19,11 +19,10 @@ Example:
 }
 
 if (length(args) >= 1) {
-  name <- args[1]
+  task <- args[1]
 }
 
 
-task <- name
 data_path <- './Example_data/'
 dm_path <- pj(data_path, paste0(task, "_demo.rds"))
 
