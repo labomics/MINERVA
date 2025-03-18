@@ -73,7 +73,8 @@ We propose two application scenarios for MINERVA:
    The integrated performance was subsequently assessed using the **3.Evaluate Performance** framework.
    <br>
 ### (2) Generalization to Novel Queries  
-   Pre-trained model from **scenario 1** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning:
+   Pre-trained model from **_De novo_ Integration** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning.<br>
+   
    ```
    # Set up Large-scale Reference Atlas
    CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task imc_ref --experiment all --pretext mask noise downsample fusion --use_shm 2 &
