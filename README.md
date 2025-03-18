@@ -64,8 +64,8 @@ We propose two application scenarios for MINERVA:
    # OR
    CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task bmmc_sub10 --pretext mask noise downsample fusion &
    ```
-   - pretext：SSL strategies used.<br>
- **Note: The dataset needs more than two batches to use the fusion strategy.**
+   pretext：SSL strategies used.<br>
+   **Note: The dataset needs more than two batches to use the fusion strategy.**<br>
    <br>
    This produces trained model states saved at each specified epoch. You can obtain the joint low-dimensional representation, the intra- and inter-modality imputed expression profiles, and the batch-corrected matrix with the following commands:
    ```
