@@ -43,6 +43,7 @@ class SCT(nn.Module):
             for m in o.ref_mods:
                 x_encs[m] = MLP([o.dims_h[m], o.dim_z*2], hid_norm=o.norm, hid_drop=o.drop)
         self.x_encs = nn.ModuleDict(x_encs)
+        
         # Modality decoder p(x^m|c, b)
         self.x_dec = MLP([o.dim_z]+o.dims_dec_x+[sum(o.dims_h.values())], hid_norm=o.norm,
                          hid_drop=o.drop)
@@ -51,17 +52,6 @@ class SCT(nn.Module):
         self.s_enc = MLP([o.dim_s]+o.dims_enc_s+[o.dim_z*2], hid_norm=o.norm, hid_drop=o.drop)
         # Batch decoder p(s|b)
         self.s_dec = MLP([o.dim_b]+o.dims_dec_s+[o.dim_s], hid_norm=o.norm, hid_drop=o.drop)
-
-        # Chromosome encoders and decoders
-        if "atac" in o.ref_mods:
-            chr_encs, chr_decs = [], []
-            for dim_chr in o.dims_chr:
-                chr_encs.append(MLP([dim_chr]+o.dims_enc_chr, hid_norm=o.norm, hid_drop=o.drop))
-                chr_decs.append(MLP(o.dims_dec_chr+[dim_chr], hid_norm=o.norm, hid_drop=o.drop))
-            self.chr_encs = nn.ModuleList(chr_encs)
-            self.chr_decs = nn.ModuleList(chr_decs)
-            self.chr_enc_cat_layer = Layer1D(o.dims_h["atac"], o.norm, "mish", o.drop)
-            self.chr_dec_split_layer = Layer1D(o.dims_h["atac"], o.norm, "mish", o.drop)
 
 
     def forward(self, inputs):
@@ -123,10 +113,6 @@ class SCT(nn.Module):
                 if t in ["raw", "mask", "noise"]:
                     if m in ["rna", "adt"]:  # use mask
                         h = x_pp[m] * e[m]
-                    elif m == "atac":        # encode each chromosome
-                        x_chrs = x_pp[m].split(o.dims_chr, dim=1)
-                        h_chrs = [self.chr_encs[i](x_chr) for i, x_chr in enumerate(x_chrs)]
-                        h = self.chr_enc_cat_layer(th.cat(h_chrs, dim=1))
                 else:
                     h = x_pp[m]
                 
@@ -186,10 +172,6 @@ class SCT(nn.Module):
             else:
                 x_r_pre[t] = self.x_dec(z[t]).split(list(o.dims_h.values()), dim=1)
             x_r_pre[t] = utils.get_dict(o.ref_mods, x_r_pre[t])
-            if "atac" in x_r_pre.keys():
-                h_chrs = self.chr_dec_split_layer(x_r_pre["atac"]).split(o.dims_dec_chr[0], dim=1)
-                x_chrs = [self.chr_decs[i](h_chr) for i, h_chr in enumerate(h_chrs)]
-                x_r_pre[t]["atac"] = th.cat(x_chrs, dim=1).sigmoid()
             
             # Generate s activation
             if s is not None:
@@ -240,10 +222,7 @@ def gen_real_data(x_r_pre, sampling=True):
             x_r[m] = v.exp()
             if sampling:
                 x_r[m] = th.poisson(x_r[m]).int()
-        else:  # for atac
-            x_r[m] = v
-            if sampling:
-                x_r[m] = th.bernoulli(x_r[m]).int()
+
     return x_r
 
 
@@ -275,24 +254,7 @@ class Discriminator(nn.Module):
 
         loss = sum(loss_dict.values()) / c_all["raw"]["joint"].size(0)
 
-        if o.experiment == "bio_ib_0":
-            loss = loss * 0
-        elif o.experiment == "bio_ib_10":
-            loss = loss * 10
-        elif o.experiment == "bio_ib_15":
-            loss = loss * 15
-        elif o.experiment == "bio_ib_20":
-            loss = loss * 20
-        elif o.experiment == "bio_ib_25":
-            loss = loss * 25
-        elif o.experiment == "bio_ib_30":
-            loss = loss * 30
-        elif o.experiment == "bio_ib_50":
-            loss = loss * 50
-        elif o.experiment == "bio_ib_100":
-            loss = loss * 100
-        else:
-            loss = loss * 100
+        loss = loss * 100
 
         return loss
 
@@ -303,40 +265,25 @@ class LossCalculator(nn.Module):
     def __init__(self, o):
         super(LossCalculator, self).__init__()
         self.o = o
-        # self.log_softmax = func("log_softmax")
-        # self.nll_loss = nn.NLLLoss(reduction='sum')
         self.pois_loss = nn.PoissonNLLLoss(full=True, reduction='none')
-        self.bce_loss = nn.BCELoss(reduction='none')
         self.cross_entropy_loss = nn.CrossEntropyLoss(reduction='none')  # log_softmax + nll
         self.mse_loss = nn.MSELoss(reduction='none')
         self.kld_loss = nn.KLDivLoss(reduction='sum')
         self.gaussian_loss = nn.GaussianNLLLoss(full=True, reduction='sum')
 
         self.tech_ib_coef = 4
-        if o.experiment == "tech_ib_0":
-            self.tech_ib_coef = 0
-        elif o.experiment == "tech_ib_1":
-            self.tech_ib_coef = 1
-        elif o.experiment == "tech_ib_2":
-            self.tech_ib_coef = 2
-        elif o.experiment == "tech_ib_8":
-            self.tech_ib_coef = 8
-        elif o.experiment == "tech_ib_16":
-            self.tech_ib_coef = 16
-
-        # self.i = 0
 
 
     def forward(self, inputs, x_r_pre, s_r_pre, z_mu, z_logvar, z, c, b, z_uni, z_mix = None):
         o = self.o
                 
         losses, loss_ratio = {}, {}
-        loss_recon, loss_kld_z, loss_mod, loss_SEM, loss_BNM = {}, {}, {}, {}, {}
+        loss_recon, loss_kld_z, loss_mod, loss_SEM = {}, {}, {}, {}
 
         for t in z_uni.keys():
 
             losses[t], loss_ratio[t] = {}, {}
-            loss_recon[t], loss_kld_z[t], loss_mod[t], loss_SEM["fusion"], loss_BNM["c"], loss_BNM["b"] = {}, {}, {}, {}, {}, {}
+            loss_recon[t], loss_kld_z[t], loss_mod[t], loss_SEM["fusion"] = {}, {}, {}, {}
 
             
             if t in ["raw", "mask", "noise", "downsample"]:
@@ -352,18 +299,7 @@ class LossCalculator(nn.Module):
             loss_kld_z[t] = self.calc_kld_z_loss(z_mu[t], z_logvar[t])
 
             loss_mod[t] = self.calc_mod_align_loss(z_uni[t])
-            if o.experiment == "mod_0":
-                loss_mod[t] = loss_mod[t] * 0
-            elif o.experiment == "mod_10":
-                loss_mod[t] = loss_mod[t] * 10
-            elif o.experiment == "mod_20":
-                loss_mod[t] = loss_mod[t] * 20
-            elif o.experiment == "mod_100":
-                loss_mod[t] = loss_mod[t] * 100
-            elif o.experiment == "mod_200":
-                loss_mod[t] = loss_mod[t] * 200
-            else:
-                loss_mod[t] = loss_mod[t] * 50
+            loss_mod[t] = loss_mod[t] * 50
 
             if o.debug == 1:
                 print("%s=> recon: %.3f\tkld_z: %.3f\ttopo: %.3f" % (t, loss_recon[t].item(),
@@ -372,19 +308,26 @@ class LossCalculator(nn.Module):
         if "fusion" in z_mu.keys():
             lam = inputs["mix_param"][:,2].view(-1, 1).cuda()
             loss_SEM["fusion"] = self.consistency_loss(lam, z, z_mix)
-        else:
-            loss_SEM = None
 
-        sum_losses = {
-            "loss_recon": loss_recon,
-            "loss_kld_z": loss_kld_z,
-            "loss_mod": loss_mod,
-            "loss_SEM": loss_SEM,
-        }
+            sum_losses = {
+                "loss_recon": loss_recon,
+                "loss_kld_z": loss_kld_z,
+                "loss_mod": loss_mod,
+                "loss_SEM": loss_SEM,
+                }
+            
+        else:
+             sum_losses = {
+                "loss_recon": loss_recon,
+                "loss_kld_z": loss_kld_z,
+                "loss_mod": loss_mod,
+                }
+
         total_loss = 0
         raw_loss = 0
 
         for index, (outer_key, inner_dict) in enumerate(sum_losses.items()):
+            
             for value1 in inner_dict.values():
                 total_loss += value1
             raw_loss += list(inner_dict.values())[0]
@@ -399,9 +342,6 @@ class LossCalculator(nn.Module):
         for m in x.keys():
             if m == "label":
                 losses[m] = self.cross_entropy_loss(x_r_pre[m], x[m].squeeze(1)).sum()
-            elif m == "atac":
-                losses[m] = self.bce_loss(x_r_pre[m], x[m]).sum()
-                # losses[m] = self.pois_loss(x_r_pre[m], x[m]).sum()
             else:
                 if t == "raw":
                     losses[m] = (self.pois_loss(x_r_pre[m], x[m]) * e[m]).sum()
@@ -417,16 +357,6 @@ class LossCalculator(nn.Module):
             s_coef = 1000
             s_coef_mix = 1000
 
-            if o.experiment == "s_coef_1":
-                s_coef = 1
-            elif o.experiment == "s_coef_200":
-                s_coef = 200
-            elif o.experiment == "s_coef_500":
-                s_coef = 500
-            elif o.experiment == "s_coef_2000":
-                s_coef = 2000
-            elif o.experiment == "s_coef_5000":
-                s_coef = 5000
             if t == "fusion":
                 losses["s"] = self.cross_entropy_loss(s_r_pre, s.squeeze(1)).sum() * (self.tech_ib_coef + s_coef_mix)
             else:
@@ -511,8 +441,6 @@ class Layer1D(nn.Module):
 def preprocess(x, name, dim, task):
     if name == "label":
         x = nn.functional.one_hot(x.squeeze(1), num_classes=dim).float()
-    # elif name == "atac":
-    #     x = x.log1p()
     elif name == "rna":
         x = x.log1p()
     elif name == "adt":
