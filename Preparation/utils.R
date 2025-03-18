@@ -136,7 +136,7 @@ preprocess <- function(output_dir, atac = NULL, rna = NULL, adt = NULL) {
 }
 
 
-get_adt_genes <- function(file_path = "adt_rna_correspondence.csv") {
+get_adt_genes <- function(file_path = "./Preparation/adt_rna_correspondence.csv") {
     adt_genes_raw <- read.csv(file_path, sep = "\t")[["symbol"]]
     adt_genes <- vector()
     for (gene in adt_genes_raw) {
