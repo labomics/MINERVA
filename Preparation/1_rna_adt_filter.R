@@ -39,3 +39,4 @@ for (batch in names(obj_split) ) {
     
     # preprocess and save data
     preprocess(output_dir, rna = rna, adt = adt)
+}
