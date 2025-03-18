@@ -64,6 +64,9 @@ We propose two application scenarios for MINERVA:
    # OR
    CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task bmmc_sub10 --pretext mask noise downsample fusion &
    ```
+   - pretext：SSL strategies used.<br>
+ **Note: The dataset needs more than two batches to use the fusion strategy.**
+   <br>
    This produces trained model states saved at each specified epoch. You can obtain the joint low-dimensional representation, the intra- and inter-modality imputed expression profiles, and the batch-corrected matrix with the following commands:
    ```
    python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict_all &
@@ -73,7 +76,7 @@ We propose two application scenarios for MINERVA:
    The integrated performance was subsequently assessed using the **3.Evaluate Performance** framework.
    <br>
 ### (2) Generalization to Novel Queries  
-   Pre-trained model from **_De novo_ Integration** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning.<br>
+   Pre-trained model from **scenarios (1)** can serve as a reference atlas seamlessly integrating unseen query data and accurately transfers cell-type labels without the need for de novo integration or fine-tuning.<br>
    
    ```
    # Set up Large-scale Reference Atlas
