@@ -92,8 +92,9 @@ class MultimodalDataset(Dataset):
             if self.split == "train":
                 tr = transformation(index, m, self.pair_filenames, self.pair_mix, self.o.data_dir)
 
-                for "fusion" in self.o.pretext:
-                    items["mix_param"], items["mix1"][m], items["mix2"][m] = tr.mixup(m)
+                for t in self.o.pretext:
+                    if t == "fusion":
+                        items["mix_param"], items["mix1"][m], items["mix2"][m] = tr.mixup(m)
      
         return items
 
