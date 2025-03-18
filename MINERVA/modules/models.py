@@ -69,7 +69,7 @@ class SCT(nn.Module):
         o = self.o
         s = None
         
-        if o.drop_s == 0 and "s" in inputs.keys():
+        if "s" in inputs.keys():
             s_drop_rate = o.s_drop_rate if self.training else 0
             if th.rand([]).item() < 1 - s_drop_rate:
                 s = inputs["s"]
