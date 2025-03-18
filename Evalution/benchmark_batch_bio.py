@@ -1,10 +1,9 @@
 import os
-os.chdir("/root/workspace/sjh/data/paper")
 from os.path import join as pj
 import argparse
 import sys
-sys.path.append("modules")
-import utils
+sys.path.append(os.path.abspath('./MINERVA'))
+from modules import utils
 import numpy as np
 import scib
 import scib.metrics as me
@@ -17,8 +16,8 @@ import copy
 
 # %%
 parser = argparse.ArgumentParser()
-parser.add_argument('--task', type=str, default='sln_sub100')
-parser.add_argument('--experiment', type=str, default='null')
+parser.add_argument('--task', type=str, default='dm_sub10')
+parser.add_argument('--experiment', type=str, default='e0')
 parser.add_argument('--model', type=str, default='default')
 parser.add_argument('--method', type=str, default='embed')
 o, _ = parser.parse_known_args()  # for python interactive
@@ -28,13 +27,14 @@ end = 1000
 step = 100
 
 # %%
+print(os.getcwd())
 cfg_task = re.sub("_vd.*|_vt.*|_atlas|_generalize|_transfer|_ref_.*", "", o.task)
-data_config = utils.load_toml("configs/data.toml")[cfg_task]
+data_config = utils.load_toml("./MINERVA/configs/data.toml")[cfg_task]
 for k, v in data_config.items():
     vars(o)[k] = v
-model_config = utils.load_toml("configs/model.toml")["default"]
+model_config = utils.load_toml("./MINERVA/configs/model.toml")["default"]
 if o.model != "default":
-    model_config.update(utils.load_toml("configs/model.toml")[o.model])
+    model_config.update(utils.load_toml("./MINERVA/configs/model.toml")[o.model])
 for k, v in model_config.items():
     vars(o)[k] = v
 o.s_joint, o.combs, *_ = utils.gen_all_batch_ids(o.s_joint, o.combs)
@@ -46,7 +46,7 @@ batch = []
 labels_dir = []
 for raw_data_dir in o.raw_data_dirs:
     for s in o.s_joint:
-        labels_dir += glob(pj("/dev/shm/processed/", o.task, "subset_" + str(s), "labels.csv"))
+        labels_dir += glob(pj("./result/preprocess", o.task, "subset_" + str(s), "labels.csv"))
 
 p = 0
 for l in labels_dir:
@@ -61,9 +61,7 @@ batch = np.array(batch)
 print(list(set(labels)))
 print(list(set(batch)))
 
-o.ref_task
 
-# %%
 def bio_evaluate(o, pred, labels, result_dir):
     if o.method in ["embed", "stabmap", "scvaeit", "multigrate"]:
         output_type = "embed"
@@ -140,17 +138,13 @@ def bio_evaluate(o, pred, labels, result_dir):
     results['graph_conn'] = me.graph_connectivity(adata, label_key=label_key)
     print("graph_conn: " + str(results['graph_conn']))
 
-    results['cLISI'] = me.clisi_graph(adata, batch_key=batch_key, label_key=label_key, type_="knn",
-        subsample=subsample*100, n_cores=1, verbose=verbose)
-    print("cLISI: " + str(results['cLISI']))
-
     results['iLISI'] = me.ilisi_graph(adata, batch_key=batch_key, type_="knn",
         subsample=subsample*100, n_cores=1, verbose=verbose)
     print("iLISI: " + str(results['iLISI']))
 
     results = {k: float(v) for k, v in results.items()}
     results['batch_score'] = np.nanmean([results['iLISI'], results['graph_conn'], results['kBET']])
-    results['bio_score'] = np.nanmean([results['NMI'], results['ARI'], results['il_score_asw'], results['cLISI']])
+    results['bio_score'] = np.nanmean([results['NMI'], results['ARI'], results['il_score_asw'])
 
     df = pd.DataFrame({
         'iLISI':          [results['iLISI']],
@@ -160,7 +154,6 @@ def bio_evaluate(o, pred, labels, result_dir):
         'NMI':            [results['NMI']],
         'ARI':            [results['ARI']],
         'il_score_asw':    [results['il_score_asw']],
-        'cLISI':          [results['cLISI']],
         'bio_score':      [results['bio_score']],
     })
     print(df)
@@ -183,12 +176,20 @@ for i in list(range(start, end, step)):
     df_bio["Model"] = "Step_" + "{:04d}".format(i + 1)
     df_batch_bio_embed.append(df_bio)
 
-# %%
-# SLN
+# DM
 df_bio_cat = pd.concat(df_batch_bio_embed, axis = 0)
 df_bio_mean_cat = copy.deepcopy(df_bio_cat)
-df_bio_mean_cat["batch_score"] = df_bio_cat[["iLISI", "graph_conn", "kBET"]].mean(axis = 1)
-df_bio_mean_cat["bio_score"] = df_bio_cat[["NMI", "ARI", "il_score_asw", "cLISI"]].mean(axis = 1)
-df_bio_mean_cat = df_bio_mean_cat[["Model", "NMI", "ARI", "il_score_asw", "cLISI", "bio_score", "iLISI", "graph_conn", "kBET", "batch_score"]]
+df_bio_mean_cat["bio_score"] = df_bio_cat[["NMI", "ARI", "il_score_asw"]].mean(axis = 1)
+df_bio_mean_cat = df_bio_mean_cat[["Model", "NMI", "ARI", "il_score_asw", "bio_score"]]
+df_bio_mean_cat_sorted = df_bio_mean_cat.sort_values("bio_score", ascending = False, inplace = False)
 df_bio_mean_cat.to_csv(pj(result_dir, "metrics_bio_train.csv"), index = False)
-print(df_bio_mean_cat)
+df_bio_mean_cat
+
+# # SLN
+# df_bio_cat = pd.concat(df_batch_bio_embed, axis = 0)
+# df_bio_mean_cat = copy.deepcopy(df_bio_cat)
+# df_bio_mean_cat["batch_score"] = df_bio_cat[["iLISI", "graph_conn", "kBET"]].mean(axis = 1)
+# df_bio_mean_cat["bio_score"] = df_bio_cat[["NMI", "ARI", "il_score_asw", "cLISI"]].mean(axis = 1)
+# df_bio_mean_cat = df_bio_mean_cat[["Model", "NMI", "ARI", "il_score_asw", "cLISI", "bio_score", "iLISI", "graph_conn", "kBET", "batch_score"]]
+# df_bio_mean_cat.to_csv(pj(result_dir, "metrics_bio_train.csv"), index = False)
+# print(df_bio_mean_cat)
