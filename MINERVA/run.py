@@ -21,7 +21,7 @@ from modules.datasets import MultiDatasetSampler
 
 
 parser = argparse.ArgumentParser()
-## Task
+## Base
 parser.add_argument('--task', type=str, default='atlas',
     help="Choose a task")
 parser.add_argument('--reference', type=str, default='',
@@ -31,7 +31,7 @@ parser.add_argument('--experiment', type=str, default='e0',
 parser.add_argument('--rf_experiment', type=str, default='',
     help="Choose a reference experiment")
 parser.add_argument('--model', type=str, default='default',
-    help="Choose a model configuration [default, mask, noise, fusion]")
+    help="Choose a model configuration")
 parser.add_argument('--actions', type=str, nargs='+', default=['train'],
     help="Choose actions to run")
 parser.add_argument('--method', type=str, default='midas',
@@ -40,10 +40,6 @@ parser.add_argument('--init_model', type=str, default='',
     help="Load a trained model")
 parser.add_argument('--init_from_ref', type=int, default=0,
     help="Load a model trained on the reference task")
-parser.add_argument('--mods_conditioned', type=str, nargs='+', default=[],
-    help="Modalities conditioned for sampling")
-parser.add_argument('--data_conditioned', type=str, default='prior.csv',
-    help="Data conditioned for sampling")
 parser.add_argument('--sample_num', type=int, default=0,
     help='Number of samples to be generated')
 parser.add_argument('--input_mods', type=str, nargs='+', default=[],
@@ -61,12 +57,6 @@ parser.add_argument('--grad_clip', type=float, default=-1,
     help='Gradient clipping value')
 parser.add_argument('--s_drop_rate', type=float, default=0.1,
     help="Probility of dropping out subject ID during training")
-parser.add_argument('--drop_s', type=int, default=0,
-    help="Force to drop s")
-parser.add_argument('--map_ref', type=int, default=0,
-    help="Map query onto reference for transfer learning")
-parser.add_argument('--sample_ref', type=int, default=1,
-    help="Sample from reference for reference mapping")
 parser.add_argument('--seed', type=int, default=1234,
     help="Set the random seed to reproduce the results")
 parser.add_argument('--use_shm', type=int, default=1,
@@ -132,9 +122,6 @@ def main():
         predict(batch_correct=True, input=True)
     if "predict_all_latent_bc" in o.actions:
         predict(mod_latent=True, batch_correct=True, input=True)
-
-    if "visualize" in o.actions:
-        visualize()
         
 
 def initialize():
@@ -154,15 +141,14 @@ def init_seed():
 
 
 def init_dirs():
-    data_folder = re.sub("_generalize", "_transfer", o.task)
     if o.use_shm == 1:
-        o.data_dir = pj("/dev/shm", "processed", data_folder)
+        o.data_dir = pj("./result/preprocess", o.task)
     elif o.use_shm == 2:
-        o.data_dir = pj("/dev/shm", "processed", data_folder, "train")
+        o.data_dir = pj("/dev/shm", "processed", o.task, "train")
     elif o.use_shm == 3:
-        o.data_dir = pj("/dev/shm", "processed", data_folder, "test")
+        o.data_dir = pj("/dev/shm", "processed", o.task, "test")
     else:
-        o.data_dir = pj("/dev/shm", "processed", data_folder)
+        o.data_dir = pj("/dev/shm", "processed", o.task)
 
     o.result_dir = pj("result", o.task, o.experiment, o.model)
     o.pred_dir = pj(o.result_dir, "predict", o.init_model)
@@ -175,11 +161,11 @@ def init_dirs():
 def load_data_config():
     
     if o.reference == '':
-        o.dims_x, o.dims_chr, o.mods = get_dims_x(ref=0)
+        o.dims_x, o.mods = get_dims_x(ref=0)
         o.ref_mods = o.mods
     else:
-        _, _, o.mods = get_dims_x(ref=0)
-        o.dims_x, o.dims_chr, o.ref_mods = get_dims_x(ref=1)
+        _, o.mods = get_dims_x(ref=0)
+        o.dims_x, o.ref_mods = get_dims_x(ref=1)
     o.mod_num = len(o.mods)
 
     if o.rf_experiment == '':
@@ -195,45 +181,22 @@ def load_data_config():
 
     o.s_joint, o.combs, o.s, o.dims_s = utils.gen_all_batch_ids(o.s_joint, o.combs)
 
-    if "continual" in o.task:
-        o.continual = True
-        o.dim_s_query = len(utils.load_toml("configs/data.toml")[re.sub("_continual", "", o.task)]["s_joint"])
-        o.dim_s_ref = len(utils.load_toml("configs/data.toml")[o.reference]["s_joint"])
-    else:
-        o.continual = False
-
-    if o.reference != '' and o.continual == False and o.map_ref == 1:  # map query onto reference for transfer learning
-
-        o.dims_s = {k: v + 1 for k, v in o.dims_s.items()}
-        
-        cfg_task_ref = re.sub("_atlas|_generalize|_transfer|_ref_.*", "", o.reference)
-        data_config_ref = utils.load_toml("configs/data.toml")[cfg_task_ref]
-
-        _, _, s_ref, dims_s_ref = utils.gen_all_batch_ids(data_config_ref["s_joint"], 
-                                                    data_config_ref["combs"])
-        o.subset_ids_ref = {m: [] for m in dims_s_ref}
-        for subset_id, id_dict in enumerate(s_ref):
-            for m in id_dict.keys():
-                o.subset_ids_ref[m].append(subset_id)
-
     o.dim_s = o.dims_s["joint"]
     o.dim_b = 2
 
 
 def load_model_config():
-    model_config = utils.load_toml("configs/model.toml")["default"]
+    model_config = utils.load_toml("./MINERVA/configs/model.toml")["default"]
     if o.model != "default":
-        model_config.update(utils.load_toml("configs/model.toml")[o.model])
+        model_config.update(utils.load_toml("./MINERVA/configs/model.toml")[o.model])
     for k, v in model_config.items():
         vars(o)[k] = v
     o.dim_z = o.dim_c + o.dim_b
     o.dims_dec_x = o.dims_enc_x[::-1]
     o.dims_dec_s = o.dims_enc_s[::-1]
-    if "dims_enc_chr" in vars(o).keys():
-        o.dims_dec_chr = o.dims_enc_chr[::-1]
     o.dims_h = {}
     for m, dim in o.dims_x.items():
-        o.dims_h[m] = dim if m != "atac" else o.dims_enc_chr[-1] * 22
+        o.dims_h[m] = dim
 
 
 def get_gpu_config():
@@ -315,40 +278,26 @@ def get_dims_x(ref):
         feat_dims = utils.load_csv(pj(o.data_dir, "feat", "feat_dims.csv"))
     else:
         if o.use_shm != 0:
-            # o.data_dir = pj("/dev/shm", "processed", data_folder)
-            feat_dims = utils.load_csv(pj("/dev/shm", "processed", o.reference, "test", "feat", "feat_dims.csv"))
-        else:
-            feat_dims = utils.load_csv(pj("data", "processed", o.reference, "feat", "feat_dims.csv"))
+            feat_dims = utils.load_csv(pj("./result/preprocess", o.reference, "test", "feat", "feat_dims.csv"))
         
     feat_dims = utils.transpose_list(feat_dims)
     
     dims_x = {}
-    dims_chr = []
     for i in range(1, len(feat_dims)):
         m = feat_dims[i][0]
-        if m == "atac":
-            dims_chr = list(map(int, feat_dims[i][1:]))
-            dims_x[m] = sum(dims_chr)
-        else:   
-            dims_x[m] = int(feat_dims[i][1])
+        dims_x[m] = int(feat_dims[i][1])
     print("Input feature numbers: ", dims_x)
 
     mods = list(dims_x.keys())
     
-    return dims_x, dims_chr, mods
+    return dims_x, mods
     
 
 def train():
-    ## train_data_loaders = get_dataloaders("train")
-    # test_data_loaders = get_dataloaders("test")
     train_data_loader_cat = get_dataloader_cat("train", train_ratio = o.train_ratio)
     print("Length of train_loaders: " + str(len(train_data_loader_cat)) + '\n')
-    # test_data_loader_cat = get_dataloader_cat("test", train_ratio = 1.0)
     for epoch_id in range(benchmark['epoch_id_start'], o.epoch_num):
         run_epoch(train_data_loader_cat, "train", epoch_id)
-        # # run_epoch(train_data_loaders, "train", epoch_id)
-        # run_epoch(test_data_loader_cat, "test", epoch_id)
-        # run_epoch(test_data_loaders, "test", epoch_id)
         check_to_save(epoch_id)
 
 
@@ -449,11 +398,6 @@ def run_iter(split, epoch_id, iter_id, inputs):
 
     if split == "train":
         skip = False
-        if o.continual and o.sample_ref == 1: 
-            subset_id_ref = inputs["s"]["joint"][0, 0].item() - o.dim_s_query
-            cycle_id = iter_id // o.dim_s
-            if subset_id_ref >= 0 and subset_id_ref != (cycle_id % o.dim_s_ref):
-                skip = True
 
         if skip:
             return np.nan
@@ -500,14 +444,6 @@ def run_iter(split, epoch_id, iter_id, inputs):
                 # print(sum_losses)
                 discriminator.epoch = epoch_id - o.ref_epoch_num
                 K = 3
-                if o.experiment == "k_1":
-                    K = 1
-                elif o.experiment == "k_2":
-                    K = 2
-                elif o.experiment == "k_4":
-                    K = 4
-                elif o.experiment == "k_5":
-                    K = 5
 
                 for _ in range(K):
                     loss_disc = forward_disc(utils.detach_tensors(c_all), inputs["s"])
@@ -518,32 +454,6 @@ def run_iter(split, epoch_id, iter_id, inputs):
                 loss = loss_net + loss_adv
                 update_net(loss)
 
-            # If we want to map query onto reference for transfer learning, then we take the reference as an additional batch
-            # and train the discriminator after the last training subset
-            if o.reference != '' and o.continual == False and o.map_ref == 1 and inputs["s"]["joint"][0, 0].item() == o.dim_s - 2:
-
-                # Randomly load c inferred from the reference dataset
-                c_all_ref = {}
-                subset_ids_sampled = {m: random.choice(ids) for m, ids in o.subset_ids_ref.items()}
-                for m, subset_id in subset_ids_sampled.items():
-                    z_dir = pj("result", o.reference, o.rf_experiment, o.model, "predict", o.init_model,
-                            "subset_"+str(subset_id), "z", m)
-                    filename = random.choice(utils.get_filenames(z_dir, "csv"))
-                    z = th.from_numpy(np.array(utils.load_csv(pj(z_dir, filename)), dtype=np.float32))
-                    # z = th.tensor(utils.load_csv(pj(z_dir, filename)), dtype=th.float32)
-                    c_all_ref[m] = z[:, :o.dim_c]
-                c_all_ref = utils.convert_tensors_to_cuda(c_all_ref)
-
-                # Generate s for the reference dataset, which is treated as the last subset
-                s_ref = {}
-                tmp = inputs["s"]["joint"]
-                for m, d in o.dims_s.items():
-                    s_ref[m] = th.full((c_all_ref[m].size(0), 1), d-1, dtype=tmp.dtype, device=tmp.device)
-
-                with autograd.set_detect_anomaly(o.debug == 1):
-                    for _ in range(K):
-                        loss_disc = forward_disc(c_all_ref, s_ref)
-                        update_disc(loss_disc)
     else:
         with th.no_grad():
             inputs = utils.convert_tensors_to_cuda(inputs)
