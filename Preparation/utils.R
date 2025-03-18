@@ -3,7 +3,6 @@ library(Seurat)
 library(SeuratDisk)
 library(future)
 library(dplyr)
-library(ggplot2)
 library(Matrix)
 library(purrr)
 library(stringr)
@@ -151,74 +150,4 @@ get_adt_genes <- function(file_path = "adt_rna_correspondence.csv") {
         }
     }
     return(unique(adt_genes))
-}
-
-plt_size <- function(w, h) {
-     options(repr.plot.width = w, repr.plot.height = h)
-}
-
-
-dim_plot <- function(obj, w, h, reduction = NULL, split.by = NULL, group.by = NULL,
-    label = F, repel = F, label.size = 4, pt.size = NULL, order = NULL, shuffle = T, cols = NULL,
-    save_path = NULL, legend = T, title = NULL, display = T, no_axes = F, return_plt = F,
-    border = F, raster = F, rater_dpi = 250) {
-
-    plt_size(w = w, h = h)
-    plt <- DimPlot(obj, reduction = reduction, split.by = split.by, group.by = group.by,
-    label = label, repel = repel, label.size = label.size, pt.size = pt.size, shuffle = shuffle,
-    order = order, cols = cols, raster = raster, raster.dpi = c(rater_dpi, rater_dpi))
-    if (!legend) {
-        plt <- plt + NoLegend()
-    }
-
-    if (!is.null(title)) {
-        plt <- plt + ggtitle(title) + theme(plot.title = element_text(face = "plain", size = 40))
-        title_margin <- 8
-    } else {
-        plt <- plt + theme(plot.title = element_blank())
-        title_margin <- 0
-    }
-
-    if (no_axes) {
-        plt <- plt + NoAxes()
-    }
-
-    if (border) {
-        plt <- plt + theme(panel.border = element_rect(color = "black", linewidth = 1),
-                           axis.ticks.length = unit(0, "pt"), plot.margin = margin(title_margin, 0, 0, 0))
-    }
-
-    if (!is.null(save_path)) {
-        ggsave(plot = plt, file = paste0(save_path, ".png"), width = w, height = h, limitsize = F)
-        ggsave(plot = plt, file = paste0(save_path, ".pdf"), width = w, height = h, limitsize = F)
-    }
-
-    if (display) {
-        plt
-    }
-
-    if (return_plt) {
-        return(plt)
-    }
-}
-
-# https://mokole.com/palette.html
-col_27 <- c("#8b4513", "#6b8e23", "#483d8b", "#bc8f8f", "#008080", "#000080", "#daa520", "#8fbc8f", "#8b008b",
-            "#b03060", "#ff0000", "#00ff00", "#00fa9a", "#8a2be2", "#dc143c", "#00ffff", "#00bfff", "#0000ff",
-            "#adff2f", "#ff7f50", "#ff00ff", "#1e90ff", "#f0e68c", "#ffff54", "#add8e6", "#ff1493", "#ee82ee")
-
-dim_reduc <- function(obj, rna = "rna", adt = "adt") {
-    DefaultAssay(obj) <- rna
-    VariableFeatures(obj) <- rownames(obj)
-    obj <-  NormalizeData(obj) %>%
-            ScaleData() %>%
-            RunPCA(reduction.name = "pca_rna", verbose = F)
-
-    DefaultAssay(obj) <- adt
-    VariableFeatures(obj) <- rownames(obj)
-    obj <-  NormalizeData(obj, normalization.method = "CLR", margin = 2) %>%
-            ScaleData() %>%
-            RunPCA(reduction.name = "pca_adt", verbose = F)
-
-    return(obj)
 }
