@@ -2,10 +2,10 @@ library(SeuratDisk)
 source('utils.R')
 
 
-base_path <- "./data/processed"
-data_path <- "./Download_data/dura_mater"
-dm_path <- pj(data_path, "dm_sub10.rds")
-output_path <- pj(base_path, "dm_sub10/inputdata")
+base_path <- "../result/"
+data_path <- "../Example_data/"
+dm_path <- pj(data_path, "dm_sub10_demo.rds")
+output_path <- pj(base_path, "dm_sub10_demo/inputdata")
 mkdir(output_path, remove_old = T)
 
 
