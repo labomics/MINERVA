@@ -4,10 +4,15 @@ from os.path import join as pj
 from glob import glob
 sys.path.append(os.path.abspath('./MINERVA'))
 from modules import utils
+import argparse
 
+parser = argparse.ArgumentParser()
 
-task = "dm_sub10"
-base_path = pj("./result/preprocess", task)
+parser.add_argument('--task', type=str, default='dm_sub10',
+    help="experiment name")
+o = parser.parse_args()
+
+base_path = pj("./result/preprocess", o.task)
 base_dirs = glob(pj(base_path, "subset_*"))
 
 
