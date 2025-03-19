@@ -37,7 +37,7 @@ mkdir(output_path, remove_old = T)
 
 # load data
 data = readRDS(data_file)
-obj_split <- SplitObject(dm, split.by = "batch")
+obj_split <- SplitObject(data, split.by = "batch")
 
 
 for (batch in names(obj_split) ) {
