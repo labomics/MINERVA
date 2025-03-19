@@ -95,7 +95,7 @@ class MultimodalDataset(Dataset):
                     if t == "noise":
                         items[t][m] = tr.random_gaussian_noise()
 
-                    if t == "subsample":
+                    if t == "downsample":
                         matrix = robjects.r.matrix(np.array(items["raw"][m]))
                         row_names = robjects.StrVector([str(i) for i in range(1, items["raw"][m].shape[0] + 1)])
                         col_names = robjects.StrVector(["1"])
