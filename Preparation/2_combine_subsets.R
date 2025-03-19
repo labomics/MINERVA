@@ -3,37 +3,41 @@ args <- commandArgs(trailingOnly = TRUE)
 
 if ("--help" %in% args || length(args) == 0) {
   cat("
-Usage: Rscript 2_combine_subsets.R [param1]
+Usage: Rscript 2_combine_subsets.R [param1] [param2]
 
 Description:
-  This script used for selecting ADT and highly variable genes
+  This script used for qulity control
 
 Arguments:
+  filename     data filename (Required).
   task         experiment name (Required).
 
 Example:
-  Rscript Preparation/2_combine_subsets.R dm_sub10
+  Rscript Preparation/2_combine_subsets.R sln_sub10_demo.rds sln_sub10_transfer
 
 ")
   quit(status = 0)
 }
 
 if (length(args) >= 1) {
-  task <- args[1]
+  filename <- args[1]
+}
+if (length(args) >= 2) {
+  task <- args[2]
 }
 
 
 data_path <- './Example_data/'
-dm_path <- pj(data_path, paste0(task, "_demo.rds"))
+data_file <- pj(data_path, paste0(task, filename))
 
 
 # load data
-dm = readRDS(dm_path)
-obj_split <- SplitObject(dm, split.by = "orig.ident")
+data = readRDS(data_file)
+obj_split <- SplitObject(dm, split.by = "batch")
 nfeature = 4000
 
 
-samples <- c('wt')
+samples <- unique(data@meta.data$batch)
 modes <- c('rna', 'adt')
 
 
