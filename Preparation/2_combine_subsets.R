@@ -28,16 +28,14 @@ if (length(args) >= 2) {
 
 
 data_path <- './Example_data/'
-data_file <- pj(data_path, paste0(task, filename))
-
+data_file <- pj(data_path, filename)
 
 # load data
 data = readRDS(data_file)
-obj_split <- SplitObject(dm, split.by = "batch")
+obj_split <- SplitObject(data, split.by = "batch")
+
 nfeature = 4000
-
-
-samples <- unique(data@meta.data$batch)
+samples <- tolower(unique(data@meta.data$batch))
 modes <- c('rna', 'adt')
 
 
