@@ -38,6 +38,7 @@ conda create --name MINERVA python=3.8.8
 conda activate MINERVA
 
 # Install core packages
+# All packages needed detailed in `others/Dependencies.txt`
 pip install torch==2.0.0
 conda install -c conda-forge r-seurat=4.3.0
 
@@ -86,14 +87,39 @@ python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict
 *Output paths*: `dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}`<br>
 
 #### Scenario B: Zero-Shot Generalization to Novel Queries  
+We take two example:
+1. trained MINERVA with two batches of SLN datasets, and test the transfer performance with the others batches.
+```bash
+# Split train/test datasets
+mkdir -p ./result/preprocess/sln_sub10_train/{train,test}/
+
+for dir in train test; do
+    ln -sf ../../sln_sub10/feat ./result/preprocess/sln_sub10_train/$dir/
+done
+
+for i in 2 3; do
+    ln -sf ../../sln_sub10/subset_$i ./result/preprocess/sln_sub10_train/train/subset_$((i-2))
+done
+
+ln -sf ../../sln_sub10/subset_{0,1} ./result/preprocess/sln_sub10_train/test/
+
+# Train model
+CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task sln_sub10_train --pretext mask noise downsample --use_shm 2
+
+# Knowledge transfer to novel batches
+python MINERVA/run.py --task sln_sub10_transfer --ref sln_sub10_train --rf_experiment e0 \
+--experiment e0 --init_model sp_latest --init_from_ref 1 --action predict_all  --use_shm 3
+``` 
+2. Reference atlas application to novel cross-tissues datasets
 ```bash
 # Reference atlas setup
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task imc_ref --experiment all \
 --pretext mask noise downsample fusion --use_shm 2
 
-# Knowledge transfer to query
+# Knowledge transfer to cross-tissues queries
 python MINERVA/run.py --task imc_query --ref imc_ref --rf_experiment all \
 --experiment all --init_model sp_latest --init_from_ref 1 --action predict_all --use_shm 3
+
 ```
 
 ### 3. Performance Evaluation  
