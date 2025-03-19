@@ -30,15 +30,14 @@ if (length(args) >= 2) {
 
 base_path <- "./result/preprocess"
 data_path <- "./Example_data/"
-dm_path <- pj(data_path, filename)
+data_file <- pj(data_path, filename)
 output_path <- pj(base_path, "/",task,"/inputdata")
 mkdir(output_path, remove_old = T)
 
 
 # load data
-dm = readRDS(dm_path)
-dm@meta.data$orig.ident <- "WT" 
-obj_split <- SplitObject(dm, split.by = "orig.ident")
+data = readRDS(data_file)
+obj_split <- SplitObject(dm, split.by = "batch")
 
 
 for (batch in names(obj_split) ) {
