@@ -14,9 +14,10 @@ import copy
 import warnings
 warnings.filterwarnings("ignore")
 
-from rpy2.robjects import r, StrVector, ListVector, numpy2ri
-numpy2ri.activate()
-r('library(scuttle)')
+import rpy2.robjects as robjects
+import rpy2.robjects.numpy2ri
+rpy2.robjects.numpy2ri.activate()
+robjects.r('library(scuttle)')
 
 
 class MultimodalDataset(Dataset):
