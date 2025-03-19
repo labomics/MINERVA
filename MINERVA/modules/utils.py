@@ -20,10 +20,6 @@ import random
 import math
 from torch.distributions.dirichlet import Dirichlet
 
-from rpy2.robjects import r, StrVector, ListVector, numpy2ri
-numpy2ri.activate()
-r('library(scuttle)')
-
 # IO
 
 def save_json(data, filename):
