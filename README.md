@@ -77,6 +77,8 @@ python Preparation/3_split_exp.py --task sln_sub10
 
 ### 2. MINERVA Application  
 #### Scenario A: _De Novo_ Integration  
+*Corresponding to the integration of **Results 2-4** in the manuscript.*<br>
+<br>
 Execute the following commands to perform integration using SSL strategies:
 ```bash
 # Integration with SSL strategies
@@ -95,6 +97,7 @@ python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict
 #### Scenario B: Zero-Shot Generalization to Novel Queries  
 Two cases are provided:<br>
 ##### Case 1: Trained on two batches of SLN datasets, and tested the transfer performance on the remaining batches  
+*This case corresponds to the generalization results in **Result 3**.*
 ```bash
 # Split train/test datasets
 mkdir -p ./result/preprocess/sln_sub10_train/{train,test}/
@@ -118,6 +121,7 @@ python MINERVA/run.py --task sln_sub10_transfer --ref sln_sub10_train --rf_exper
 ```
 
 ##### Case 2: Construct reference atlas and transfer to novel cross-tissue datasets  
+*This case corresponds to **Result 5**.*
 ```bash
 # Reference atlas construction
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task imc_ref --pretext mask noise downsample fusion --use_shm 2
@@ -127,25 +131,30 @@ python MINERVA/run.py --task imc_query --ref imc_ref --rf_experiment e0 \
 --experiment transfer --init_model sp_latest --init_from_ref 1 --action predict_all --use_shm 3
 ```
 
-### 3. Performance Evaluation  
+### 3. Performance Evaluation
 The output from both scenarios includes:
-- input reconstructions  
-- batch-corrected expression profiles  
-- imputed matrices  
-- cross-modality expression translations  
-- 34-dimensional joint embeddings (first 32 dimensions for biological state; last 2 dimensions for technical bias)  
-*Example output paths*: `dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}`<br>
-<br>
+- **Input reconstructions**
+- **Batch-corrected expression profiles**
+- **Imputed matrices**
+- **Cross-modality expression translations**
+- **34-dimensional joint embeddings**
+  - First 32 dimensions: Biological state representation
+  - Last 2 dimensions: Technical bias correction
+
 These embeddings can be imported using Python ("pd.read_csv") or R ("read.csv") to compute neighborhood graphs and perform clustering with Anndata or Seurat.<br>
-Quantitative evaluation scripts:<br>
+
+*Example output paths*:  `dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}`
+
+
+**Quantitative evaluation scripts**:  
 ```bash
 # Batch correction & biological conservation
 python Evaluation/benchmark_batch_bio.py
 
-# Modality alignment
+# Modality alignment assessment
 python Evaluation/benchmark_mod.py
 
-# Comprehensive scoring
+# Comprehensive metric aggregation
 python Evaluation/combine_metrics.py
 ```
 
