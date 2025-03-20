@@ -137,7 +137,7 @@ The output from both scenarios includes:
 *Example output paths*: `dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}`<br>
 <br>
 These embeddings can be imported using Python ("pd.read_csv") or R ("read.csv")o compute neighborhood graphs and perform clustering with Anndata or Seurat.<br>
-Quantitative evaluation scripts:
+Quantitative evaluation scripts:<br>
 ```bash
 # Batch correction & biological conservation
 python Evaluation/benchmark_batch_bio.py
