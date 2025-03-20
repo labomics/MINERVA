@@ -22,9 +22,9 @@
 ## 🗂️ Benchmark Datasets  
 | Dataset<br>(Abbrev.)       | Species | Cells   | Proteins       | Batches | Accession ID |                Sample ratio: cell                 |
 |       :--------------:     |  :---:  |  :---:  |    :-----:     |  :---:  |    :----:    |            :---------------------------           |
-| CD45<sup>- dura mater<br>(DM)   | Mouse   | 6,697   | 168            | 1       | GSE191075    | 10%: 664&nbsp;&nbsp;\| 20%: 1,336<br>50%: 3,346&nbsp;&nbsp;\| 100%: 6,697 |
-| Spleen & lymph nodes<br>(SLN)    | Mouse   | 29,338  | SLN111:111<br>SLN208:208 | 4       | GSE150599    | 10%:2,339&nbsp;\| 20%:4,678<br>50%:11,731&nbsp;\| 100%: 23,470|
-| Bone marrow mononuclear cell<br>(BMMC)| Human   | 90,261  | 134            | 12      | GSE194122    | 10%: 5,893&nbsp;\| 20%: 17,840<br>50%: 29,975&nbsp;\| 100%:60,155|
+| CD45<sup>- dura mater<br>(DM)   | Mouse   | 6,697   | 168            | 1       | GSE191075    | 10%: 664&nbsp;&nbsp;&nbsp;&nbsp;\| 20%: 1,336<br>50%: 3,346&nbsp;&nbsp;\| 100%: 6,697 |
+| Spleen & lymph nodes<br>(SLN)    | Mouse   | 29,338  | SLN111:111<br>SLN208:208 | 4       | GSE150599    | 10%:2,339&nbsp;&nbsp;\| 20%:4,678<br>50%:11,731&nbsp;\| 100%: 23,470|
+| Bone marrow mononuclear cell<br>(BMMC)| Human   | 90,261  | 134            | 12      | GSE194122    | 10%: 5,893&nbsp;&nbsp;\| 20%: 17,840<br>50%: 29,975&nbsp;\| 100%:60,155|
 | Immune cells  across lineages and tissues<br>(IMC)| Human   | 190,877 | 268            | 15      | GSE229791    | -                                                 |
 
 ---
