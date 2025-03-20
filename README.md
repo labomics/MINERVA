@@ -133,7 +133,7 @@ The output from both scenarios includes:
 - batch-corrected expression profiles
 - imputed matrices
 - cross-modality expression translations
-- 34-dimensional joint embeddings (first 32 dimensions for biological state; last 2 dimensions for technical bias).
+- 34-dimensional joint embeddings (first 32 dimensions for biological state; last 2 dimensions for technical bias).<br>
 *Example output paths*: `dm_sub10/e0/default/predict/sp_latest/subset_0/{z,x_impu,x_bc,x_trans}`<br>
 <br>
 These embeddings can be imported using Python ("pd.read_csv") or R ("read.csv")o compute neighborhood graphs and perform clustering with Anndata or Seurat.<br>
