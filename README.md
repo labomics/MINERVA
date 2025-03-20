@@ -119,6 +119,7 @@ CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task sln_sub10_train --pretext ma
 python MINERVA/run.py --task sln_sub10_transfer --ref sln_sub10_train --rf_experiment e0 \
 --experiment transfer --init_model sp_latest --init_from_ref 1 --action predict_all  --use_shm 3
 ```
+<br>
 
 ##### Case 2: Construct reference atlas and transfer to novel cross-tissue datasets  
 *This case corresponds to **Result 5**.*
