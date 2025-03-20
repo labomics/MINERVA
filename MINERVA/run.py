@@ -145,11 +145,11 @@ def init_dirs():
     if o.use_shm == 1:
         o.data_dir = pj("./result/preprocess", o.task)
     elif o.use_shm == 2:
-        o.data_dir = pj("/dev/shm", "processed", o.task, "train")
+        o.data_dir = pj("./result/preprocess", o.task, "train")
     elif o.use_shm == 3:
-        o.data_dir = pj("/dev/shm", "processed", o.task, "test")
+        o.data_dir = pj("./result/preprocess", o.task, "test")
     else:
-        o.data_dir = pj("/dev/shm", "processed", o.task)
+        o.data_dir = pj("./result/preprocess", o.task)
 
     o.result_dir = pj("result", o.task, o.experiment, o.model)
     o.pred_dir = pj(o.result_dir, "predict", o.init_model)
