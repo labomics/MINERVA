@@ -86,15 +86,15 @@ CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task sln_sub10 --pretext mask noi
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task bmmc_sub10 --pretext mask noise downsample fusion
 ```
 
-**Output Extraction**  
+##### Output Extraction  
 Trained model states are saved at specified epochs. To obtain the joint low-dimensional representations, intra- and inter-modality imputed expression profiles, and the batch-corrected matrix, run:
 ```bash
 python MINERVA/run.py --task dm_sub10 --init_model sp_00000999 --actions predict_all
 ```
 
 #### Scenario B: Zero-Shot Generalization to Novel Queries  
-Two cases are provided:
-**Case 1: Trained on two batches of SLN datasets, and tested the transfer performance on the remaining batches**  
+Two cases are provided:<br>
+##### Case 1: Trained on two batches of SLN datasets, and tested the transfer performance on the remaining batches  
 ```bash
 # Split train/test datasets
 mkdir -p ./result/preprocess/sln_sub10_train/{train,test}/
@@ -117,7 +117,7 @@ python MINERVA/run.py --task sln_sub10_transfer --ref sln_sub10_train --rf_exper
 --experiment transfer --init_model sp_latest --init_from_ref 1 --action predict_all  --use_shm 3
 ```
 
-**Case 2: Construct reference atlas and transfer to novel cross-tissue datasets**  
+##### Case 2: Construct reference atlas and transfer to novel cross-tissue datasets  
 ```bash
 # Reference atlas construction
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task imc_ref --pretext mask noise downsample fusion --use_shm 2
