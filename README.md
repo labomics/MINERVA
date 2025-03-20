@@ -11,8 +11,8 @@
 
 ### Key Capabilities  
 ✅ **_De novo_ integration** of heterogeneous multi-omics datasets, especially for small-scale datasets  
-✅ **Dimensionality reduction** for streamlined analysis 
-✅ **Imputation** of missing features within- and cross-modality   
+✅ **Dimensionality reduction** for streamlined analysis  
+✅ **Imputation** of missing features within- and cross-modality  
 ✅ **Batch correction**  
 ✅ **Zero-shot knowledge transfer** to unseen datasets without additional training or fine-tuning  
 ✅ **Instant cell-type identification**  
