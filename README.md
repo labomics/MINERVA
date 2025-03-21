@@ -138,8 +138,8 @@ The output from both scenarios includes:
 - **Imputed matrices**
 - **Cross-modality expression translations**
 - **34-dimensional joint embeddings**
-  - First 32 dimensions: Biological state representation
-  - Last 2 dimensions: Technical bias correction
+  - First 32 dimensions: Biological state
+  - Last 2 dimensions: Technical bias
 
 These embeddings can be imported using Python ("pd.read_csv") or R ("read.csv") to compute neighborhood graphs and perform clustering with Anndata or Seurat.<br>
 
@@ -165,7 +165,7 @@ python Evaluation/combine_metrics.py
 |----------------|--------------------------------------|---------------------------------|
 | `--pretext`    | SSL strategies                       | `mask`, `noise`, `downsample`, `fusion` |
 | `--use_shm`    | Datasets partition mode              | `1` (all), `2` (train), `3` (test)      |
-| `--actions`    | Post-training operations             | `predict_all`, `predict_joint`, etc.
+| `--actions`    | Post-training operations             | `predict_all`, `predict_joint`, etc.    |
 
 *Full options:*  
 ```bash
