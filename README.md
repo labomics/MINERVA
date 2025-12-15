@@ -84,7 +84,7 @@ Execute the following commands to perform integration using SSL strategies:
 # Integration with SSL strategies
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task dm_sub10 --pretext mask
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task sln_sub10 --pretext mask noise downsample
-# Note: Cell fision strategies require at least 2 batches
+# Note: Cell fusion strategies require at least 2 batches
 CUDA_VISIBLE_DEVICES=0 python MINERVA/run.py --task bmmc_sub10 --pretext mask noise downsample fusion
 ```
 
