@@ -7,7 +7,7 @@
 ---
 
 ## 📖 Introduction  
-**MINERVA** is a versatile framework for single-cell multimodal data integration, specifically optimized for CITE-seq data. Our framework employs **six innovative designed self-supervised learning (SSL) strategies**-categorized into bilevel masking, batch augmentation, and cell fusion—to achieve robust integrative analysis and cross-dataset generalization.
+**MINERVA** is a versatile framework for single-cell multimodal data integration, specifically optimized for CITE-seq data. Our framework employs **six innovatively designed self-supervised learning (SSL) strategies**-categorized into bilevel masking, batch augmentation, and cell fusion—to achieve robust integrative analysis and cross-dataset generalization.
 
 ### Key Capabilities  
 ✅ **_De novo_ integration** of heterogeneous multi-omics datasets, especially for small-scale datasets  
