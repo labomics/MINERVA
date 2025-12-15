@@ -24,7 +24,7 @@
 |       :--------------:     |  :---:  |  :---:  |    :-----:     |  :---:  |    :----:    |            :---------------------------           |
 | CD45<sup>-</sup> dura mater<br>(DM)   | Mouse   | 6,697   | 168            | 1       | GSE191075    | 10%: 664<br>20%: 1,336<br>50%: 3,346<br>100%: 6,697 |
 | Spleen & lymph nodes<br>(SLN)    | Mouse   | 29,338  | SLN111:111<br>SLN208:208 | 4       | GSE150599    | 10%: 2,339<br>20%: 4,678<br>50%: 11,731<br>100%: 23,470|
-| Bone marrow mononuclear cell<br>(BMMC)| Human   | 90,261  | 134            | 12      | GSE194122    | 10%: 7,366<br>20%: 14，897<br>50%: 37,469<br>100%: 75，195|
+| Bone marrow mononuclear cell<br>(BMMC)| Human   | 90,261  | 134            | 12      | GSE194122    | 10%: 7,366<br>20%: 14,897<br>50%: 37,469<br>100%: 75,195|
 | Immune cells  across lineages and tissues<br>(IMC)| Human   | 190,877 | 268            | 15      | GSE229791    | -                                                 |
 
 ---
